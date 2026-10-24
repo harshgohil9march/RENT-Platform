@@ -1,0 +1,10 @@
+# Local roadmap files
+roadmap_days_RENT_Platform_exact/
+RENT-Project.md
+rent_platform_engineering_standards.md
+
+# Node and environment files
+node_modules/
+.env
+dist/
+.DS_Store
