@@ -1,7 +1,8 @@
 # Local roadmap files
-roadmap_days_RENT_Platform_exact/
+roadmap_days_frontend_backend/
 RENT-Project.md
 rent_platform_engineering_standards.md
+Database Schema Rent-Platform.png
 
 # Node and environment files
 node_modules/
