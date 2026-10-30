@@ -20,7 +20,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
           <button
             key={index}
             onClick={() => setMainImage(img)}
-            className={`h-20 w-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors duration-200 cursor-pointer ${
+            className={`h-20 w-24 shrink-0 rounded-lg overflow-hidden border-2 transition-colors duration-200 cursor-pointer ${
               mainImage === img ? 'border-primary' : 'border-transparent'
             }`}
           >
