@@ -31,6 +31,7 @@ export default function Home() {
       </section>
 
       <Categories />
+      {/* This component will now handle fetching and displaying its own data */}
       <FeaturedProperties />
     </div>
   );
