@@ -19,7 +19,7 @@ const pool = mysql.createPool({
 
 pool.getConnection()
     .then((connection)=>{
-        console.log(`Succesfully connected to MySQL database: ${process.env.DB_NAME}`);
+        console.log(`Succesfully connected to MySQL database: ${process.env.DB_NAME} \n`);
         connection.release();
     })// When the app starts, we ask the pool for a single connection just to test if the credentials in our .env file are correct. Once it connects successfully, we release() it back into the pool.
     .catch((err)=>{

@@ -9,7 +9,7 @@ export const getProperties = async (req: Request, res: Response) => {
 
         // If a category is provided in the URL, filter by it
         if (category) {
-            query += 'WHERE category = ?';
+            query += ' WHERE category = ?';
             params.push(category);
         }
         const [rows] = await pool.execute(query, params);
@@ -45,4 +45,71 @@ export const getPropertyById = async (req: Request, res: Response): Promise<any>
         res.status(500).json({ message: 'Server Error' });
 
     }
+};
+
+export const createProperty = async(req: Request, res: Response): Promise<any> =>{
+    try{
+        const {title, description, rent_monthly, deposit, category, locality, owner_id} = req.body;
+
+        if(!title || !rent_monthly){
+            return res.status(400).json({message: 'Title and Rent are required'});
+        }
+
+        const query = `INSERT INTO properties(title, description, rent, deposit, category,locality, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+        const [result]: any = await pool.execute(query, [title, description, rent_monthly, deposit, category,locality , owner_id]);
+
+        res.status(201).json({
+            message: 'Property created successfully',
+            propertyId: result.insertId
+        })
+    } catch(err){
+        console.log('Error creating property:', err);
+        res.status(500).json({messsage: 'Server Error'});
+    }
+};
+
+export const updateProperty = async (req: Request, res: Response): Promise<any> => {
+  try {
+    // req.params pulls the ID from the URL (e.g., /api/properties/5 means id is 5)
+    const { id } = req.params;
+    
+    // We extract the fields the user wants to update from the body
+    const { title, rent_monthly, description } = req.body;
+
+    const query = 'UPDATE properties SET title = ?, rent = ?, description = ? WHERE id = ?';
+    
+    const [result]: any = await pool.execute(query, [title, rent_monthly, description, id]);
+
+    // result.affectedRows tells us how many database rows were changed.
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    res.json({ message: 'Property updated successfully' });
+
+  } catch (error) {
+    console.error('Error updating property:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+
+export const deleteProperty = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM properties WHERE id = ?';
+    const [result]: any = await pool.execute(query, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    res.json({ message: 'Property deleted successfully' });
+
+  } catch (error) {
+    console.error('Error deleting property:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 };
