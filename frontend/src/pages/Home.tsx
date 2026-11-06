@@ -21,7 +21,7 @@ export default function Home() {
             <input 
               type="text" 
               placeholder="Search by locality (e.g., Hiran Magri, Shobhagpura)..." 
-              className="flex-grow px-4 py-3 outline-none rounded-md text-gray-700"
+              className="grow px-4 py-3 outline-none rounded-md text-gray-700"
             />
             <Button variant="primary" className="py-3 px-8 text-lg w-full sm:w-auto">
               Search

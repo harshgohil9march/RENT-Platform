@@ -11,8 +11,11 @@ import dotenv from 'dotenv';
 
 import './config/db';
 // This "executes the database connection" code the moment the server starts.
+import cookieParser from 'cookie-parser';
+// Allows Express to read secure cookies sent by the browser.
 
 import propertyRoutes from './routes/propertyRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 // This "triggers" the reading of the `.env` file.
@@ -23,7 +26,10 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 // Uses the port from your .env file, or defaults to 5000.
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Your React frontend URL
+  credentials: true // This allows the secure token cookie to pass through
+}));
 // Tells the app to apply the CORS security pass to all incoming requests.
 
 app.use(express.json());
@@ -35,6 +41,7 @@ app.get('/api/health', (req, res) => {
 // A simple test route. If someone visits 'localhost:5000/api/health', the server responds with a JSON message.
 
 app.use('/api/properties', propertyRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
