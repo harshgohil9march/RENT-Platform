@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../config/db';
-
+import {AuthRequest} from '../middleware/authMiddleware'
 export const getProperties = async (req: Request, res: Response) => {
     try {
         const { category } = req.query;
@@ -69,47 +69,57 @@ export const createProperty = async(req: Request, res: Response): Promise<any> =
     }
 };
 
-export const updateProperty = async (req: Request, res: Response): Promise<any> => {
+// PATCH: Update an existing property
+export const updateProperty = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    // req.params pulls the ID from the URL (e.g., /api/properties/5 means id is 5)
     const { id } = req.params;
-    
-    // We extract the fields the user wants to update from the body
-    const { title, rent_monthly, description } = req.body;
+    const { title, rent, description } = req.body;
 
-    const query = 'UPDATE properties SET title = ?, rent = ?, description = ? WHERE id = ?';
+    // 1. Fetch property to check ownership
+    const [propCheck]: any = await pool.execute('SELECT owner_id FROM properties WHERE id = ?', [id]);
     
-    const [result]: any = await pool.execute(query, [title, rent_monthly, description, id]);
-
-    // result.affectedRows tells us how many database rows were changed.
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Property not found' });
+    if (propCheck.length === 0) return res.status(404).json({ message: 'Property not found' });
+    
+    // 2. CRITICAL: Check if logged-in user is the actual owner
+    if (propCheck[0].owner_id !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden: You do not own this property' });
     }
 
-    res.json({ message: 'Property updated successfully' });
+    const query = 'UPDATE properties SET title = ?, rent = ?, description = ? WHERE id = ?';
+    await pool.execute(query, [title, rent, description, id]);
 
+    res.json({ message: 'Property updated successfully' });
   } catch (error) {
-    console.error('Error updating property:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
 
 
-export const deleteProperty = async (req: Request, res: Response): Promise<any> => {
+// DELETE: Remove a property
+export const deleteProperty = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { id } = req.params;
 
-    const query = 'DELETE FROM properties WHERE id = ?';
-    const [result]: any = await pool.execute(query, [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Property not found' });
+    const [propCheck]: any = await pool.execute('SELECT owner_id FROM properties WHERE id = ?', [id]);
+    
+    if (propCheck.length === 0) return res.status(404).json({ message: 'Property not found' });
+    if (propCheck[0].owner_id !== req.user.userId) {
+      return res.status(403).json({ message: 'Forbidden: You do not own this property' });
     }
 
+    await pool.execute('DELETE FROM properties WHERE id = ?', [id]);
     res.json({ message: 'Property deleted successfully' });
-
   } catch (error) {
-    console.error('Error deleting property:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// GET: Fetch only properties owned by the logged-in user
+export const getMyProperties = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const [properties]: any = await pool.execute('SELECT * FROM properties WHERE owner_id = ?', [req.user.userId]);
+    res.json(properties);
+  } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
 };

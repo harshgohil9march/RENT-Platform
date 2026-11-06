@@ -7,6 +7,7 @@ import  {AuthProvider}  from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
+import Dashboard from "./pages/Dashboard";
 function App() {
 
   return (
@@ -19,7 +20,8 @@ function App() {
             <Route path="property/:id" element={<PropertyDetail />}/>
             <Route path="/login" element = {<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="logout" element={<Logout />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </Layout>
       </BrowserRouter>
