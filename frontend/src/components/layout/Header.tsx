@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Logout from '../../pages/Logout';
 
 export default function Header() {
   return (
@@ -17,14 +18,17 @@ export default function Header() {
             <Link to="/" className="text-secondary hover:text-primary px-3 py-2 rounded-md font-medium">
               Home
             </Link>
+
             <Link to="/search" className="text-secondary hover:text-primary px-3 py-2 rounded-md font-medium">
               Find PG
             </Link>
-            <Link to="/login" className="text-secondary hover:text-primary px-3 py-2 rounded-md font-medium">
-              Login
-            </Link>
+
+            <Logout />
+
           </nav>
+
         </div>
+        
       </div>
     </header>
   );
