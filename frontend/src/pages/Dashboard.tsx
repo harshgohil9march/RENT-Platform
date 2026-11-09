@@ -78,7 +78,7 @@ export default function Dashboard() {
                 title={property.title}
                 rent={property.rent}
                 locality={property.locality || "Udaipur"}
-                imageUrl={"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"}
+                imageUrl={property.images?.[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"}
               />
               <div className="absolute top-2 right-2 flex gap-2">
                 <button className="px-3 py-1 bg-white text-blue-600 text-sm font-semibold rounded shadow hover:bg-blue-50">

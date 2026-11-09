@@ -88,7 +88,7 @@ export default function Search() {
                 title={property.title}
                 rent={property.rent}
                 locality={property.locality || "Udaipur"}
-                imageUrl={"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"}
+                imageUrl={property.images?.[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"}
               />
             ))}
           </div>

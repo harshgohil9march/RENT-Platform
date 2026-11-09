@@ -7,6 +7,7 @@ interface Property {
   title: string;
   rent: number;
   locality: string;
+  images?: string[];
 }
 
 export default function FeaturedProperties() {
@@ -47,7 +48,7 @@ export default function FeaturedProperties() {
             rent={property.rent}
             // Use locality as defined in your database and PropertyCard interface
             locality={property.locality || "Udaipur"} 
-            imageUrl="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"
+            imageUrl={property.images?.[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"}
           />
         ))}
       </div>

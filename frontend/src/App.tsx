@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import Dashboard from "./pages/Dashboard";
+import AddProperty from "./pages/AddProperty";
 function App() {
 
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/add-property" element= {<AddProperty/>} />
           </Routes>
         </Layout>
       </BrowserRouter>
