@@ -11,11 +11,13 @@ import dotenv from 'dotenv';
 
 import './config/db';
 // This "executes the database connection" code the moment the server starts.
+
 import cookieParser from 'cookie-parser';
 // Allows Express to read secure cookies sent by the browser.
 
 import propertyRoutes from './routes/propertyRoutes';
 import authRoutes from './routes/authRoutes';
+import  uploadRoutes  from './routes/uploadRoutes';
 
 dotenv.config();
 // This "triggers" the reading of the `.env` file.
@@ -31,9 +33,9 @@ app.use(cors({
   credentials: true // This allows the secure token cookie to pass through
 }));
 // Tells the app to apply the CORS security pass to all incoming requests.
-
 app.use(express.json());
 // Crucial line: When React sends data (like a new user registration) in JSON format, this built-in middleware converts that raw JSON into a readable JavaScript object (req.body).
+app.use(cookieParser());
 
 app.get('/api/health', (req, res) => {
   res.json({ message: 'RENT-Platform Backend is healthy!' });
@@ -42,34 +44,10 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/properties', propertyRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes );
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 // Turns the server on and tells it to continuously listen for traffic on port 5000.
 
-
-// import express from 'express';
-// import cors from 'cors';
-// import dotenv from 'dotenv';
-// import console = require('node:console');
-// import './config/db'
-
-// dotenv.config();
-
-// const app = express();
-// const PORT = process.env.port || 5000;
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-
-// // helath chedck route
-// app.get('/api/health', (req,res)=>{
-//     res.json({message: 'RENT-Platform is healthy!'});
-// });
-
-// // start server
-// app.listen(PORT, ()=>{
-//     console.log(`server is running on http://localhost:${PORT}`);
-// });

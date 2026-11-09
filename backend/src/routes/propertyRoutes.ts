@@ -10,9 +10,9 @@ router.get('/', getProperties);
 router.get('/:id', getPropertyById);
 
 // Protected routes(Require login)
-router.get('me/all', requireAuth, getMyProperties);
-router.post('/',requireAuth, createProperty);
-router.patch(':id',requireAuth, updateProperty);
+router.get('/me/all', requireAuth, getMyProperties);
+router.post('/', requireAuth, createProperty);
+router.patch('/:id', requireAuth, updateProperty);
 router.delete('/:id',requireAuth, deleteProperty);
 
 export default router;

@@ -14,7 +14,8 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
         });
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        req.user = decoded;
         next();
     } catch (error) {
         return res.status(401).json({message: 'Unauthorized: Invalid or expired token'})

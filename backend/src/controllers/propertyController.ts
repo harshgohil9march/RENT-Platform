@@ -1,6 +1,23 @@
 import { Request, Response } from 'express';
 import pool from '../config/db';
 import {AuthRequest} from '../middleware/authMiddleware'
+
+const addImagesToProperties = async (properties: any[]) => {
+    return Promise.all(
+        properties.map(async (property: any) => {
+            const [imageRows]: any = await pool.execute(
+                'SELECT image_url FROM property_images WHERE property_id = ? ORDER BY id ASC',
+                [property.id]
+            );
+
+            return {
+                ...property,
+                images: imageRows.map((row: any) => row.image_url),
+            };
+        })
+    );
+};
+
 export const getProperties = async (req: Request, res: Response) => {
     try {
         const { category } = req.query;
@@ -12,8 +29,8 @@ export const getProperties = async (req: Request, res: Response) => {
             query += ' WHERE category = ?';
             params.push(category);
         }
-        const [rows] = await pool.execute(query, params);
-        res.json(rows);
+        const [rows]: any = await pool.execute(query, params);
+        res.json(await addImagesToProperties(rows));
     }
     catch (err) {
         console.log('Error fetching properties: ', err);
@@ -47,26 +64,53 @@ export const getPropertyById = async (req: Request, res: Response): Promise<any>
     }
 };
 
-export const createProperty = async(req: Request, res: Response): Promise<any> =>{
-    try{
-        const {title, description, rent_monthly, deposit, category, locality, owner_id} = req.body;
+export const createProperty = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    // Make sure we extract rent consistently
+    const { title, description, rent, deposit, category, locality, amenities, images } = req.body;
 
-        if(!title || !rent_monthly){
-            return res.status(400).json({message: 'Title and Rent are required'});
-        }
-
-        const query = `INSERT INTO properties(title, description, rent, deposit, category,locality, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-        const [result]: any = await pool.execute(query, [title, description, rent_monthly, deposit, category,locality , owner_id]);
-
-        res.status(201).json({
-            message: 'Property created successfully',
-            propertyId: result.insertId
-        })
-    } catch(err){
-        console.log('Error creating property:', err);
-        res.status(500).json({messsage: 'Server Error'});
+    if (!title || !rent) {
+      return res.status(400).json({ message: 'Title and rent are required' });
     }
+
+    // 1. Insert the main property
+    const query = 'INSERT INTO properties (title, description, rent, deposit, category, locality, owner_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const [result]: any = await pool.execute(query, [
+      title, description, rent, deposit || 0, category , locality, req.user.userId
+    ]);
+    
+    const propertyId = result.insertId;
+
+    // 2. Insert Images (if any were uploaded)
+    if (images && images.length > 0) {
+      const imageQuery = 'INSERT INTO property_images (property_id, image_url) VALUES (?, ?)';
+      for (const url of images) {
+        await pool.execute(imageQuery, [propertyId, url]);
+      }
+    }
+
+    // 3. Insert Amenities (if any were checked)
+    if (amenities && amenities.length > 0) {
+      const findAmenityQuery = 'SELECT id FROM amenities WHERE name = ?';
+      const insertJunctionQuery = 'INSERT INTO property_amenities (property_id, amenity_id) VALUES (?, ?)';
+
+      for (const amenityName of amenities) {
+        // Look up the amenity_id from the master table
+        const [rows]: any = await pool.execute(findAmenityQuery, [amenityName]);
+        
+        if (rows.length > 0) {
+          const amenityId = rows[0].id;
+          // Insert the IDs into the many-to-many junction table
+          await pool.execute(insertJunctionQuery, [propertyId, amenityId]);
+        }
+      }
+    }
+
+    res.status(201).json({ message: 'Property created successfully', propertyId });
+  } catch (error) {
+    console.error('Create property error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 };
 
 // PATCH: Update an existing property
@@ -118,8 +162,9 @@ export const deleteProperty = async (req: AuthRequest, res: Response): Promise<a
 export const getMyProperties = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const [properties]: any = await pool.execute('SELECT * FROM properties WHERE owner_id = ?', [req.user.userId]);
-    res.json(properties);
+    res.json(await addImagesToProperties(properties));
   } catch (error) {
+    console.error('Error fetching owner properties:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
