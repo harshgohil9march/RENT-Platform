@@ -18,6 +18,7 @@ import cookieParser from 'cookie-parser';
 import propertyRoutes from './routes/propertyRoutes';
 import authRoutes from './routes/authRoutes';
 import  uploadRoutes  from './routes/uploadRoutes';
+import enquiryRoutes   from './routes/enquiryRoutes';
 
 dotenv.config();
 // This "triggers" the reading of the `.env` file.
@@ -45,6 +46,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/properties', propertyRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes );
+app.use('/api', enquiryRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
